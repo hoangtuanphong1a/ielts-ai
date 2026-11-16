@@ -18,7 +18,7 @@ export default function ForgotPassword() {
       await api("/auth/password/reset/", { method: "POST", body: { email }, retry: false });
       setSent(true);
     } catch (err) {
-      setError(err.status === 429 ? "Bạn đã yêu cầu quá nhiều lần. Thử lại sau 1 giờ." : errorText(err));
+      setError(err.status === 429 ? "Too many requests. Please try again in an hour." : errorText(err));
     } finally {
       setBusy(false);
     }
@@ -30,14 +30,14 @@ export default function ForgotPassword() {
         <form className="auth-form card" onSubmit={onSubmit}>
           <Brand to="/login" />
           <div className="page-head">
-            <h1>Quên mật khẩu</h1>
-            <p className="muted">Nhập email đã đăng ký, hệ thống sẽ gửi link đặt mật khẩu mới.</p>
+            <h1>Forgot password</h1>
+            <p className="muted">Enter the email you signed up with and we will send you a reset link.</p>
           </div>
 
           {sent ? (
             <div className="alert" role="status">
               <EnvelopeSimple size={20} />
-              <span>Nếu email có trong hệ thống, link đã được gửi. Link hết hạn sau 1 giờ.</span>
+              <span>If that email is registered, a reset link is on its way. It expires in 1 hour.</span>
             </div>
           ) : (
             <>
@@ -49,13 +49,13 @@ export default function ForgotPassword() {
               <ErrorAlert>{error}</ErrorAlert>
               <button className="btn btn-block" disabled={busy}>
                 {busy && <CircleNotch size={18} className="spin" />}
-                {busy ? "Đang gửi" : "Gửi link đặt lại"}
+                {busy ? "Sending" : "Send reset link"}
               </button>
             </>
           )}
 
           <Link to="/login" className="small" style={{ display: "inline-flex", gap: 6, alignItems: "center" }}>
-            <ArrowLeft size={16} /> Quay lại đăng nhập
+            <ArrowLeft size={16} /> Back to log in
           </Link>
         </form>
       </main>

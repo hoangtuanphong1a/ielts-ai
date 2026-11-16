@@ -11,4 +11,6 @@ urlpatterns = [
     path("api/auth/", include("accounts.urls")),
     path("api/writing/", include("writing.urls")),
     path("api/vocab/", include("vocab.urls")),
+    path("api/coach/", include("coach.urls")),
+    path("api/reading/", include("reading.urls")),
 ]

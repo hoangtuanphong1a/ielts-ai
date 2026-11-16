@@ -22,11 +22,11 @@ def send_password_reset_email(user_id: int) -> None:
     token = default_token_generator.make_token(user)
     link = f"{settings.FRONTEND_URL}/reset-password?uid={uid}&token={token}"
     send_mail(
-        subject="IELTS AI: đặt lại mật khẩu",
+        subject="IELTS AI: reset your password",
         message=(
-            f"Chào {user.username},\n\n"
-            f"Bấm vào link sau để đặt mật khẩu mới (hết hạn sau 1 giờ):\n{link}\n\n"
-            "Nếu bạn không yêu cầu, hãy bỏ qua email này."
+            f"Hi {user.username},\n\n"
+            f"Open this link to set a new password (it expires in 1 hour):\n{link}\n\n"
+            "If you did not ask for this, you can ignore this email."
         ),
         from_email=None,
         recipient_list=[user.email],

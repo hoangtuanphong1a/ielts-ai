@@ -8,6 +8,10 @@ class Word(models.Model):
     definition = models.TextField()
     example = models.TextField(blank=True)
     topic = models.CharField(max_length=50, blank=True)
+    # REA-04: từ học viên tự thêm khi đọc. NULL = bộ từ chung do hệ thống soạn.
+    # Từ tự thêm không được phát làm "từ mới" cho người khác.
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                                 on_delete=models.SET_NULL, related_name="added_words")
 
     def __str__(self):
         return self.term
@@ -24,6 +28,8 @@ class Card(models.Model):
     ease = models.FloatField(default=2.5)
     due_date = models.DateField(default=timezone.localdate)
     last_reviewed = models.DateTimeField(null=True, blank=True)
+    context = models.TextField(blank=True)  # câu học viên gặp từ này (vd. trong bài đọc)
+    source = models.CharField(max_length=200, blank=True)  # vd. "Reading: The Rise of Urban Beekeeping"
 
     class Meta:
         unique_together = [("user", "word")]

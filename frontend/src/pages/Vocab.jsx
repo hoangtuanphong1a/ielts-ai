@@ -6,10 +6,10 @@ import { EmptyState, ErrorAlert, PageSkeleton } from "../components/ui.jsx";
 
 // quality theo SM-2 (0-5); phím tắt 1-4
 const GRADES = [
-  { q: 1, label: "Quên", key: "1" },
-  { q: 3, label: "Khó", key: "2" },
-  { q: 4, label: "Nhớ", key: "3" },
-  { q: 5, label: "Dễ", key: "4" },
+  { q: 1, label: "Forgot", key: "1" },
+  { q: 3, label: "Hard", key: "2" },
+  { q: 4, label: "Good", key: "3" },
+  { q: 5, label: "Easy", key: "4" },
 ];
 
 export default function Vocab() {
@@ -58,10 +58,10 @@ export default function Vocab() {
       <div className="card">
         <EmptyState
           icon={<CheckCircle size={28} />}
-          title={cards.length ? "Xong phần ôn hôm nay" : "Hôm nay không có thẻ cần ôn"}
-          action={<Link to="/writing" className="btn btn-ghost">Luyện Writing</Link>}
+          title={cards.length ? "You are done for today" : "No cards due today"}
+          action={<Link to="/writing" className="btn btn-ghost">Practise Writing</Link>}
         >
-          {cards.length ? `Bạn đã ôn ${cards.length} thẻ. Thẻ tiếp theo sẽ đến hạn vào ngày mai.` : "Quay lại vào ngày mai nhé."}
+          {cards.length ? `You reviewed ${cards.length} cards. The next ones are due tomorrow.` : "Come back tomorrow."}
         </EmptyState>
       </div>
     );
@@ -73,15 +73,15 @@ export default function Vocab() {
   return (
     <div className="page" style={{ maxWidth: 720, margin: "0 auto", width: "100%" }}>
       <div className="page-head">
-        <h1>Ôn từ vựng</h1>
+        <h1>Vocabulary review</h1>
         <div style={{ display: "flex", justifyContent: "space-between" }} className="small muted num">
-          <span>Thẻ {index + 1} / {cards.length}</span>
-          {word.topic && <span>Chủ đề: {word.topic}</span>}
+          <span>Card {index + 1} of {cards.length}</span>
+          {word.topic && <span>Topic: {word.topic}</span>}
         </div>
         <div className="progress-line" aria-hidden="true"><div style={{ width: `${pct}%` }} /></div>
       </div>
 
-      <button className="card flashcard" onClick={() => setFlipped(!flipped)} aria-label={flipped ? "Úp thẻ" : "Lật thẻ xem nghĩa"}>
+      <button className="card flashcard" onClick={() => setFlipped(!flipped)} aria-label={flipped ? "Hide meaning" : "Show meaning"}>
         <span className="term">{word.term}</span>
         {flipped ? (
           <>
@@ -89,16 +89,16 @@ export default function Vocab() {
             {word.example && <p className="muted example">{word.example}</p>}
           </>
         ) : (
-          <span className="muted small">Bấm hoặc nhấn Space để xem nghĩa</span>
+          <span className="muted small">Click or press Space to reveal</span>
         )}
       </button>
 
       {flipped && (
-        <div className="grades" role="group" aria-label="Bạn nhớ từ này mức nào?">
+        <div className="grades" role="group" aria-label="How well did you remember it?">
           {GRADES.map((g) => (
             <button key={g.q} className="btn btn-ghost" onClick={() => grade(g.q)} disabled={busy}>
               {busy ? <CircleNotch size={18} className="spin" /> : g.label}
-              <kbd>phím {g.key}</kbd>
+              <kbd>key {g.key}</kbd>
             </button>
           ))}
         </div>

@@ -10,3 +10,7 @@ python-dotenv>=1.0,<2.0
 psycopg[binary]>=3.2,<4.0
 celery[redis]>=5.4,<6.0
 drf-spectacular>=0.27,<1.0
+spacy>=3.8,<3.9
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+wordfreq>=3.1,<4
+fastembed>=0.9,<1

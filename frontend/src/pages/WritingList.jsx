@@ -5,11 +5,11 @@ import { api, errorText } from "../api.js";
 import { EmptyState, ErrorAlert, PageSkeleton } from "../components/ui.jsx";
 
 const FILTERS = [
-  { key: "all", label: "Tất cả" },
+  { key: "all", label: "All" },
   { key: "task1", label: "Task 1" },
   { key: "task2", label: "Task 2" },
 ];
-const TASK_LABEL = { task1: "Task 1 · 20 phút", task2: "Task 2 · 40 phút" };
+const TASK_LABEL = { task1: "Task 1 · 20 min", task2: "Task 2 · 40 min" };
 
 export default function WritingList() {
   const [prompts, setPrompts] = useState(null);
@@ -28,11 +28,11 @@ export default function WritingList() {
   return (
     <div className="page">
       <div className="page-head">
-        <h1>Chọn đề Writing</h1>
-        <p className="muted">Viết xong bấm nộp, hệ thống chấm ngay.</p>
+        <h1>Choose a Writing prompt</h1>
+        <p className="muted">Write, submit, and get your estimated band in seconds.</p>
       </div>
 
-      <div className="chips" role="group" aria-label="Lọc theo task">
+      <div className="chips" role="group" aria-label="Filter by task">
         {FILTERS.map((f) => (
           <button key={f.key} className="chip" aria-pressed={filter === f.key} onClick={() => setFilter(f.key)}>
             {f.label}
@@ -42,8 +42,8 @@ export default function WritingList() {
 
       {shown.length === 0 ? (
         <div className="card">
-          <EmptyState icon={<MagnifyingGlass size={28} />} title="Chưa có đề nào">
-            Thử chọn bộ lọc khác.
+          <EmptyState icon={<MagnifyingGlass size={28} />} title="No prompts here yet">
+            Try another filter.
           </EmptyState>
         </div>
       ) : (
@@ -53,7 +53,7 @@ export default function WritingList() {
               <span className="tag" style={{ alignSelf: "flex-start" }}>{TASK_LABEL[p.task_type]}</span>
               <h2>{p.title}</h2>
               <p className="muted clamp-3">{p.prompt_text}</p>
-              <span className="go">Bắt đầu viết <ArrowRight size={16} /></span>
+              <span className="go">Start writing <ArrowRight size={16} /></span>
             </Link>
           ))}
         </div>

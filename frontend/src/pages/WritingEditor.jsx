@@ -9,8 +9,8 @@ const MINUTES = { task1: 20, task2: 40 };
 const DRAFT_KEY = (id) => `ielts_draft_${id}`;
 
 const TIPS = {
-  task1: ["Mở bài: paraphrase đề.", "Overview: 2 xu hướng nổi bật nhất.", "2 đoạn thân bài so sánh số liệu."],
-  task2: ["Mở bài nêu rõ quan điểm.", "2 đoạn thân bài, mỗi đoạn 1 ý chính + ví dụ.", "Kết luận nhắc lại quan điểm."],
+  task1: ["Introduction: paraphrase the question.", "Overview: the two most striking trends.", "Two body paragraphs comparing the data."],
+  task2: ["Introduction with a clear position.", "Two body paragraphs, one main idea and example each.", "Conclusion that restates your position."],
 };
 
 export default function WritingEditor() {
@@ -59,18 +59,18 @@ export default function WritingEditor() {
   return (
     <div className="page">
       <Link to="/writing" className="small" style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-        <ArrowLeft size={16} /> Danh sách đề
+        <ArrowLeft size={16} /> All prompts
       </Link>
 
       <div className="editor-layout">
         <aside className="editor-aside card" style={{ display: "grid", gap: "1rem" }}>
           <span className="tag" style={{ justifySelf: "start" }}>
-            {prompt.task_type === "task1" ? "Task 1" : "Task 2"} · {MINUTES[prompt.task_type]} phút
+            {prompt.task_type === "task1" ? "Task 1" : "Task 2"} · {MINUTES[prompt.task_type]} min
           </span>
           <h1 style={{ fontSize: "1.375rem" }}>{prompt.title}</h1>
           <p>{prompt.prompt_text}</p>
           <div>
-            <h3 style={{ marginBottom: "0.5rem" }}>Gợi ý bố cục</h3>
+            <h3 style={{ marginBottom: "0.5rem" }}>Suggested structure</h3>
             <ul className="tips">
               {TIPS[prompt.task_type].map((t) => (
                 <li key={t}><CheckCircle size={18} /><span className="small">{t}</span></li>
@@ -80,24 +80,24 @@ export default function WritingEditor() {
         </aside>
 
         <div style={{ display: "grid", gap: "1rem" }}>
-          <label htmlFor="essay" className="muted small">Bài làm (xuống dòng 2 lần để tách đoạn, nháp tự lưu trên máy)</label>
+          <label htmlFor="essay" className="muted small">Your essay (leave a blank line between paragraphs; drafts save on this device)</label>
           <textarea
             id="essay"
             className="editor"
             value={essay}
             onChange={(e) => setEssay(e.target.value)}
-            placeholder="Bắt đầu viết ở đây..."
+            placeholder="Start writing here..."
             spellCheck={false}
           />
           <div className="editor-bar">
             <span className="num" aria-live="polite">
               <strong>{wordCount}</strong>
-              <span className="muted"> / {min} từ {enough ? "· đủ số từ" : `· thiếu ${min - wordCount}`}</span>
+              <span className="muted"> / {min} words {enough ? "· length OK" : `· ${min - wordCount} to go`}</span>
             </span>
             <span className="spacer" />
             <button className="btn" onClick={submit} disabled={busy || wordCount < 20}>
               {busy ? <CircleNotch size={18} className="spin" /> : <PaperPlaneRight size={18} />}
-              {busy ? "Đang chấm" : "Nộp và chấm"}
+              {busy ? "Submitting" : "Submit for scoring"}
             </button>
           </div>
           <ErrorAlert>{error}</ErrorAlert>

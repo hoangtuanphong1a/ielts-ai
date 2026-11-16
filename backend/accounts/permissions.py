@@ -11,7 +11,7 @@ def HasRole(*roles):
     """
 
     class _HasRole(BasePermission):
-        message = "Bạn không có quyền thực hiện thao tác này."
+        message = "You do not have permission to do this."
 
         def has_permission(self, request, view):
             user = request.user

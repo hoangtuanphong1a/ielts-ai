@@ -7,7 +7,7 @@ Trả về (repetitions, interval_days, ease_factor) mới.
 
 def sm2(quality: int, repetitions: int, interval: int, ease: float) -> tuple[int, int, float]:
     if not 0 <= quality <= 5:
-        raise ValueError("quality phải trong khoảng 0-5")
+        raise ValueError("quality must be between 0 and 5")
 
     if quality < 3:
         # Trả lời sai -> học lại từ đầu

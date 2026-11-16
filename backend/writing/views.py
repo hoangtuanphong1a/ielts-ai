@@ -1,4 +1,4 @@
-from django.conf import settings
+from django.db import transaction
 from django.db.models import Avg
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema
@@ -6,10 +6,9 @@ from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from ml.scorer import score_essay
-
 from .models import Submission, WritingPrompt
 from .serializers import SubmissionSerializer, WritingPromptSerializer
+from .tasks import score_submission
 
 
 class WritingPromptViewSet(viewsets.ReadOnlyModelViewSet):
@@ -29,34 +28,17 @@ class SubmissionViewSet(mixins.CreateModelMixin,
         return Submission.objects.filter(user=self.request.user).select_related("prompt")
 
     def perform_create(self, serializer):
-        prompt = serializer.validated_data["prompt"]
-        essay = serializer.validated_data["essay"]
-
-        result = score_essay(
-            essay,
-            prompt=prompt.prompt_text,
-            task_type=prompt.task_type,
-            model_path=settings.ML_MODEL_PATH,
-        )
-
-        serializer.save(
-            user=self.request.user,
-            word_count=int(result.features["word_count"]),
-            band_overall=result.overall,
-            band_task_response=result.task_response,
-            band_coherence=result.coherence,
-            band_lexical=result.lexical,
-            band_grammar=result.grammar,
-            feedback=result.feedback,
-            features=result.features,
-            scorer=result.scorer,
-        )
+        # T2.1: lưu bài ở trạng thái pending, trả lời ngay; chấm ở nền.
+        # on_commit: chỉ xếp task sau khi bài đã nằm trong DB (worker đọc được).
+        sub = serializer.save(user=self.request.user, status=Submission.Status.PENDING)
+        transaction.on_commit(lambda: score_submission.delay(sub.pk))
 
 
-@extend_schema(responses=OpenApiTypes.OBJECT, description="Lịch sử band + trung bình 4 tiêu chí của user hiện tại")
+@extend_schema(responses=OpenApiTypes.OBJECT, description="Band history and averages of the 4 criteria for the current user")
 @api_view(["GET"])
 def progress(request):
-    qs = Submission.objects.filter(user=request.user)
+    # Chỉ tính bài đã chấm xong (T2.1)
+    qs = Submission.objects.filter(user=request.user, status=Submission.Status.DONE)
     history = [
         {"id": s.id, "date": s.created_at.date().isoformat(), "band": s.band_overall}
         for s in qs.order_by("created_at")

@@ -18,15 +18,15 @@ class SubmissionSerializer(serializers.ModelSerializer):
             "id", "prompt", "prompt_title", "essay", "word_count",
             "band_overall", "band_task_response", "band_coherence",
             "band_lexical", "band_grammar", "feedback", "features",
-            "scorer", "created_at",
+            "scorer", "status", "error", "issues", "created_at",
         ]
         read_only_fields = [
             "word_count", "band_overall", "band_task_response", "band_coherence",
             "band_lexical", "band_grammar", "feedback", "features",
-            "scorer", "created_at",
+            "scorer", "status", "error", "issues", "created_at",
         ]
 
     def validate_essay(self, value):
         if len(value.split()) < 20:
-            raise serializers.ValidationError("Bài viết quá ngắn (tối thiểu 20 từ).")
+            raise serializers.ValidationError("Your essay is too short (at least 20 words).")
         return value

@@ -61,7 +61,7 @@ def main():
     pred = np.array([round_band(p) for p in pipe.predict(X_test)])
     mae = mean_absolute_error(y_test, pred)
     within_half = float(np.mean(np.abs(pred - y_test) <= 0.5))
-    print(f"MAE: {mae:.3f} | lệch <= 0.5 band: {within_half:.1%}")
+    print(f"MAE: {mae:.3f} | within 0.5 band: {within_half:.1%}")
 
     pipe.fit(X, y)  # train lại trên toàn bộ dữ liệu trước khi lưu
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)

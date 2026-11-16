@@ -31,11 +31,14 @@ class ApiFlowTests(APITestCase):
 
     def test_submit_essay_is_scored_and_private(self):
         self.login()
-        res = self.client.post("/api/writing/submissions/",
-                               {"prompt": self.prompt.id, "essay": ESSAY})
+        # Chấm chạy sau commit (T2.1): execute=True để task eager chạy luôn
+        with self.captureOnCommitCallbacks(execute=True):
+            res = self.client.post("/api/writing/submissions/",
+                                   {"prompt": self.prompt.id, "essay": ESSAY})
         self.assertEqual(res.status_code, 201, res.data)
-        self.assertGreater(res.data["band_overall"], 0)
-        self.assertTrue(res.data["feedback"])
+        scored = self.client.get(f"/api/writing/submissions/{res.data['id']}/").data
+        self.assertGreater(scored["band_overall"], 0)
+        self.assertTrue(scored["feedback"])
 
         progress = self.client.get("/api/writing/progress/").data
         self.assertEqual(progress["count"], 1)
@@ -52,3 +55,42 @@ class ApiFlowTests(APITestCase):
         self.assertEqual(res.data["repetitions"], 1)
         # đã ôn, hạn ngày mai -> hôm nay không còn thẻ
         self.assertEqual(len(self.client.get("/api/vocab/cards/due/").data), 0)
+
+
+class AsyncScoringTests(APITestCase):
+    """T2.1: nộp bài trả về ngay (pending), chấm ở nền rồi cập nhật."""
+
+    def setUp(self):
+        self.user = User.objects.create_user("bg", password="S3cure-pass!")
+        self.prompt = WritingPrompt.objects.create(title="Remote work", prompt_text="Is working from home productive?")
+        self.client.force_authenticate(self.user)
+
+    def submit(self):
+        return self.client.post("/api/writing/submissions/", {"prompt": self.prompt.id, "essay": ESSAY})
+
+    def test_submit_returns_pending_then_done(self):
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            res = self.submit()
+        self.assertEqual(res.status_code, 201, res.data)
+        self.assertEqual(res.data["status"], "pending")
+        self.assertEqual(len(callbacks), 1)  # task chỉ được xếp hàng sau khi commit
+
+        for cb in callbacks:
+            cb()  # chạy task (eager trong test)
+        data = self.client.get(f"/api/writing/submissions/{res.data['id']}/").data
+        self.assertEqual(data["status"], "done")
+        self.assertGreater(data["band_overall"], 0)
+
+    def test_scoring_error_marks_failed(self):
+        from unittest import mock
+        with mock.patch("writing.tasks.score_essay", side_effect=RuntimeError("model hỏng")):
+            with self.captureOnCommitCallbacks(execute=True):
+                res = self.submit()
+        data = self.client.get(f"/api/writing/submissions/{res.data['id']}/").data
+        self.assertEqual(data["status"], "failed")
+        self.assertTrue(data["error"])
+
+    def test_progress_counts_only_done(self):
+        with self.captureOnCommitCallbacks(execute=False):
+            self.submit()  # pending, chưa chấm
+        self.assertEqual(self.client.get("/api/writing/progress/").data["count"], 0)

@@ -44,7 +44,7 @@ def me(request):
     return Response(UserSerializer(request.user).data)
 
 
-@extend_schema(request=PasswordChangeSerializer, responses={204: OpenApiResponse(description="Đã đổi mật khẩu")})
+@extend_schema(request=PasswordChangeSerializer, responses={204: OpenApiResponse(description="Password changed")})
 @api_view(["POST"])
 def password_change(request):
     """Đổi mật khẩu khi đã đăng nhập (AUTH-06)."""
@@ -77,17 +77,17 @@ class PasswordResetRequestView(APIView):
         for user_id in User.objects.filter(email__iexact=email, is_active=True).values_list("pk", flat=True):
             send_password_reset_email.delay(user_id)
 
-        return Response({"detail": "Nếu email có trong hệ thống, link đặt lại mật khẩu đã được gửi."})
+        return Response({"detail": "If that email is registered, a reset link has been sent."})
 
 
-@extend_schema(request=PasswordResetConfirmSerializer, responses={200: DetailResponse, 400: OpenApiResponse(description="Link sai hoặc hết hạn")})
+@extend_schema(request=PasswordResetConfirmSerializer, responses={200: DetailResponse, 400: OpenApiResponse(description="Invalid or expired link")})
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def password_reset_confirm(request):
     """Đặt mật khẩu mới từ link trong email (AUTH-05)."""
     ser = PasswordResetConfirmSerializer(data=request.data)
     ser.is_valid(raise_exception=True)
-    invalid = Response({"detail": "Link không hợp lệ hoặc đã hết hạn."}, status=status.HTTP_400_BAD_REQUEST)
+    invalid = Response({"detail": "This link is invalid or has expired."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         pk = force_str(urlsafe_base64_decode(ser.validated_data["uid"]))
@@ -106,4 +106,4 @@ def password_reset_confirm(request):
     # Đổi mật khẩu làm token cũ mất hiệu lực (token gắn với hash mật khẩu)
     user.set_password(ser.validated_data["new_password"])
     user.save()
-    return Response({"detail": "Đã đặt mật khẩu mới. Bạn có thể đăng nhập."})
+    return Response({"detail": "Password updated. You can now log in."})

@@ -1,28 +1,27 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { CircleNotch, Cards, ChartLineUp, PencilLine } from "@phosphor-icons/react";
+import { CircleNotch, Eye, EyeSlash, Infinity as InfinityIcon } from "@phosphor-icons/react";
 import { useAuth } from "../auth.jsx";
 import { errorText } from "../api.js";
-import { Brand, ErrorAlert } from "../components/ui.jsx";
-
-const POINTS = [
-  { icon: PencilLine, text: "Viết Task 1 và Task 2, nhận band ước lượng theo 4 tiêu chí." },
-  { icon: Cards, text: "Ôn từ vựng học thuật mỗi ngày bằng lặp lại ngắt quãng." },
-  { icon: ChartLineUp, text: "Theo dõi band qua từng bài để biết mình đang tiến bộ ở đâu." },
-];
+import { ErrorAlert } from "../components/ui.jsx";
 
 export default function Login() {
   const { user, login, register } = useAuth();
   const navigate = useNavigate();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ username: "", email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   if (user) return <Navigate to="/" replace />;
 
-  const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const isLogin = mode === "login";
+  const update = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const switchMode = () => {
+    setMode(isLogin ? "register" : "login");
+    setError("");
+  };
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -34,70 +33,85 @@ export default function Login() {
       // Tài khoản mới -> đặt mục tiêu trước (onboarding AUTH-09)
       navigate(isLogin ? "/" : "/profile?welcome=1");
     } catch (err) {
-      setError(err.status === 401 ? "Sai tên đăng nhập hoặc mật khẩu." : errorText(err));
+      setError(err.status === 401 ? "Incorrect username or password." : errorText(err));
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <div className="auth">
-      <aside className="auth-aside">
-        <Brand />
-        <div>
-          <h1>Viết xong là biết band ngay</h1>
-          <ul className="auth-points">
-            {POINTS.map(({ icon: Icon, text }) => (
-              <li key={text}><Icon size={22} />{text}</li>
-            ))}
-          </ul>
-        </div>
-        <p className="small" style={{ opacity: 0.8 }}>Điểm do hệ thống chấm là ước lượng, không phải điểm thi chính thức.</p>
-      </aside>
-
-      <main className="auth-main">
-        <form className="auth-form card" onSubmit={onSubmit} noValidate={false}>
-          <Brand />
-          <div className="segmented" role="tablist" aria-label="Chọn chế độ">
-            <button type="button" role="tab" aria-selected={isLogin} onClick={() => { setMode("login"); setError(""); }}>
-              Đăng nhập
-            </button>
-            <button type="button" role="tab" aria-selected={!isLogin} onClick={() => { setMode("register"); setError(""); }}>
-              Tạo tài khoản
-            </button>
+    <div className="login-shell">
+      <div className="login-card">
+        {/* Cột trái: dải màu từ bảng 5 màu + lời giới thiệu (ẩn trên mobile) */}
+        <aside className="login-visual" aria-hidden="true">
+          <span className="login-visual-mark"><InfinityIcon size={30} weight="bold" /></span>
+          <div className="login-visual-copy">
+            <p className="login-visual-eyebrow">Personalised IELTS preparation</p>
+            <p className="login-visual-title">Your own path to the band you need</p>
           </div>
+        </aside>
 
-          <div className="page-head">
-            <h1>{isLogin ? "Chào mừng quay lại" : "Bắt đầu luyện thi"}</h1>
-            <p className="muted">{isLogin ? "Đăng nhập để tiếp tục bài đang học." : "Chỉ mất 30 giây để tạo tài khoản."}</p>
-          </div>
-
-          <div className="field">
-            <label htmlFor="username">Tên đăng nhập</label>
-            <input id="username" name="username" autoComplete="username" value={form.username} onChange={update} required />
-          </div>
-          {!isLogin && (
-            <div className="field">
-              <label htmlFor="email">Email</label>
-              <input id="email" name="email" type="email" autoComplete="email" value={form.email} onChange={update} />
+        <main className="login-main">
+          <form className="login-form" onSubmit={onSubmit}>
+            <span className="login-mark"><InfinityIcon size={26} weight="bold" /></span>
+            <div className="login-head">
+              <h1>{isLogin ? "Welcome back" : "Create an account"}</h1>
+              <p className="muted">
+                {isLogin
+                  ? "Log in to continue your band journey."
+                  : "Set a target band and get a study plan that adapts to every essay you write."}
+              </p>
             </div>
-          )}
-          <div className="field">
-            <label htmlFor="password">Mật khẩu</label>
-            <input id="password" name="password" type="password" value={form.password} onChange={update} required
-                   autoComplete={isLogin ? "current-password" : "new-password"} />
-            {!isLogin && <span className="muted small">Tối thiểu 8 ký tự, không dùng mật khẩu quá phổ biến.</span>}
-            {isLogin && <Link to="/forgot-password" className="small" style={{ justifySelf: "end", alignSelf: "flex-end" }}>Quên mật khẩu?</Link>}
-          </div>
 
-          <ErrorAlert>{error}</ErrorAlert>
+            <div className="field">
+              <label htmlFor="username">Username</label>
+              <input id="username" name="username" autoComplete="username" required
+                     value={form.username} onChange={update} />
+            </div>
 
-          <button className="btn btn-block" disabled={busy}>
-            {busy && <CircleNotch size={18} className="spin" />}
-            {busy ? "Đang xử lý" : isLogin ? "Đăng nhập" : "Tạo tài khoản"}
-          </button>
-        </form>
-      </main>
+            {!isLogin && (
+              <div className="field">
+                <label htmlFor="email">Email</label>
+                <input id="email" name="email" type="email" autoComplete="email"
+                       value={form.email} onChange={update} />
+              </div>
+            )}
+
+            <div className="field">
+              <label htmlFor="password">Password</label>
+              <div className="input-wrap">
+                <input id="password" name="password" required
+                       type={showPassword ? "text" : "password"}
+                       autoComplete={isLogin ? "current-password" : "new-password"}
+                       value={form.password} onChange={update} />
+                <button type="button" className="input-icon" onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}>
+                  {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {isLogin
+                ? <Link to="/forgot-password" className="small login-forgot">Forgot password?</Link>
+                : <span className="muted small">At least 8 characters. Avoid common passwords.</span>}
+            </div>
+
+            <ErrorAlert>{error}</ErrorAlert>
+
+            <button className="btn btn-block" disabled={busy}>
+              {busy && <CircleNotch size={18} className="spin" />}
+              {busy ? "Please wait" : isLogin ? "Log in" : "Get started"}
+            </button>
+
+            <p className="login-switch small">
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <button type="button" className="link-btn" onClick={switchMode}>
+                {isLogin ? "Sign up" : "Log in"}
+              </button>
+            </p>
+
+            <p className="muted small login-note">Scores are estimates, not official IELTS results.</p>
+          </form>
+        </main>
+      </div>
     </div>
   );
 }

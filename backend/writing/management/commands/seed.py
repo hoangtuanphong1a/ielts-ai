@@ -36,7 +36,7 @@ WORDS = [
 
 
 class Command(BaseCommand):
-    help = "Seed đề Writing và từ vựng mẫu"
+    help = "Seed sample Writing prompts and vocabulary"
 
     def handle(self, *args, **options):
         for task_type, title, text in PROMPTS:

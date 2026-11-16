@@ -188,6 +188,21 @@ AI / NLP: phân loại độ khó văn bản (readability); trích xuất từ v
 | VOC-06 | Vocabulary Quiz | Trắc nghiệm, điền từ | P1 | Chưa |
 | VOC-07 | Mastery Tracking | Mức độ ghi nhớ từng từ | P1 | Một phần (dữ liệu SM-2 có, chưa hiển thị) |
 | VOC-08 | Academic Word List | Bộ AWL | P1 | Chưa |
+| VOC-09 | Study Modes & Games | Học một danh sách từ qua nhiều chế độ luyện 4 kỹ năng (xem bảng dưới) | P1 | Chưa |
+
+**VOC-09: chế độ học và trò chơi từ danh sách từ** (tham khảo cách tổ chức của LexisLift, không sao chép giao diện / nội dung)
+
+| Chế độ | Kỹ năng | Cách chơi |
+|---|---|---|
+| Flashcards | Đọc | Lật thẻ, tự chấm mức nhớ (SM-2), đã có |
+| Learn | Đọc | Trắc nghiệm nghĩa, câu sai quay lại cuối lượt |
+| Listen & Type | Nghe + Viết | Nghe phát âm (TTS), gõ lại đúng chính tả |
+| Say It | Nói | Đọc to từ / câu ví dụ, nhận dạng giọng nói (Web Speech API) so khớp |
+| Fill the Gap | Đọc + Viết | Điền từ vào câu ví dụ theo ngữ cảnh |
+| Match | Đọc | Ghép từ với nghĩa, tính giờ |
+| Use It | Viết | Viết 1 câu dùng từ, AI nhận xét cách dùng (Phase 2, cần LLM) |
+
+Kết quả mọi chế độ đổ về cùng dữ liệu SM-2 của từ, để Lunaria và lộ trình cá nhân hoá dùng chung.
 
 AI: tạo ví dụ theo ngữ cảnh; phân biệt từ dễ nhầm; đề xuất từ theo band mục tiêu; quiz cá nhân hoá.
 

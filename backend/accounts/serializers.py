@@ -22,7 +22,7 @@ class PasswordChangeSerializer(serializers.Serializer):
 
     def validate_old_password(self, value):
         if not self.context["request"].user.check_password(value):
-            raise serializers.ValidationError("Mật khẩu hiện tại không đúng.")
+            raise serializers.ValidationError("Your current password is incorrect.")
         return value
 
     def validate(self, attrs):
@@ -49,7 +49,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def validate_target_band(self, value):
         # Band IELTS đi theo bước 0.5
         if value is not None and (value * 2) % 1 != 0:
-            raise serializers.ValidationError("Band phải là bội số của 0.5 (ví dụ 6.5, 7.0).")
+            raise serializers.ValidationError("Band must be a multiple of 0.5 (for example 6.5 or 7.0).")
         return value
 
 

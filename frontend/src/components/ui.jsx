@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export function Brand({ to = "/" }) {
   return (
-    <Link to={to} className="brand" aria-label="IELTS AI, trang chủ">
+    <Link to={to} className="brand" aria-label="IELTS AI home">
       <span className="brand-mark"><InfinityIcon size={22} weight="bold" /></span>
       <span className="brand-text">IELTS AI</span>
     </Link>
@@ -39,7 +39,7 @@ export function Skeleton({ h = 16, w = "100%", style }) {
 // Khung chờ chung cho trang: tiêu đề + vài khối
 export function PageSkeleton({ blocks = 2 }) {
   return (
-    <div className="page" aria-busy="true" aria-label="Đang tải">
+    <div className="page" aria-busy="true" aria-label="Loading">
       <Skeleton h={32} w="40%" />
       {Array.from({ length: blocks }, (_, i) => (
         <Skeleton key={i} h={140} style={{ borderRadius: 14 }} />

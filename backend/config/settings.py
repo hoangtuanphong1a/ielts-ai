@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     "accounts",
     "writing",
     "vocab",
+    "coach",
+    "reading",
     "drf_spectacular",
 ]
 
@@ -136,8 +138,11 @@ ML_MODEL_PATH = BASE_DIR / "ml" / "artifacts" / "band_model.joblib"
 # API docs (T0.8): /api/schema/ (OpenAPI) và /api/docs/ (Swagger UI)
 SPECTACULAR_SETTINGS = {
     "TITLE": "IELTS AI API",
-    "DESCRIPTION": "Nền tảng luyện thi IELTS cá nhân hóa bằng AI/NLP. Xác thực: JWT Bearer (POST /api/auth/token/).",
+    "DESCRIPTION": "Personalised IELTS preparation powered by AI/NLP. Auth: JWT Bearer (POST /api/auth/token/).",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
 }
+
+# T2.3: LanguageTool local (docker-compose). Test: None -> bỏ qua kiểm tra ngữ pháp.
+LANGUAGETOOL_URL = None if TESTING else os.environ.get("LANGUAGETOOL_URL", "http://127.0.0.1:8081")

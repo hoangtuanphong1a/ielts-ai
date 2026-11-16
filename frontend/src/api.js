@@ -53,7 +53,7 @@ export async function api(path, { method = "GET", body, retry = true } = {}) {
 
 // Gom lỗi DRF {field: ["msg"]} thành 1 chuỗi để hiển thị
 export function errorText(err) {
-  if (!err?.data) return "Có lỗi xảy ra, thử lại sau.";
+  if (!err?.data) return "Something went wrong. Please try again.";
   if (typeof err.data.detail === "string") return err.data.detail;
   return Object.entries(err.data)
     .map(([k, v]) => `${k}: ${[].concat(v).join(" ")}`)

@@ -18,7 +18,7 @@ export default function ResetPassword() {
     e.preventDefault();
     setError("");
     if (password !== confirm) {
-      setError("Hai mật khẩu chưa khớp.");
+      setError("The two passwords do not match.");
       return;
     }
     setBusy(true);
@@ -44,41 +44,41 @@ export default function ResetPassword() {
         <form className="auth-form card" onSubmit={onSubmit}>
           <Brand to="/login" />
           <div className="page-head">
-            <h1>Đặt mật khẩu mới</h1>
+            <h1>Set a new password</h1>
           </div>
 
           {done ? (
             <>
               <div className="alert" role="status">
                 <CheckCircle size={20} />
-                <span>Đã đổi mật khẩu. Bạn có thể đăng nhập bằng mật khẩu mới.</span>
+                <span>Password updated. You can now log in with your new password.</span>
               </div>
-              <Link to="/login" className="btn btn-block">Đăng nhập</Link>
+              <Link to="/login" className="btn btn-block">Log in</Link>
             </>
           ) : broken ? (
             <>
-              <ErrorAlert>Link không hợp lệ. Hãy mở đúng link trong email hoặc yêu cầu link mới.</ErrorAlert>
-              <Link to="/forgot-password" className="btn btn-block">Yêu cầu link mới</Link>
+              <ErrorAlert>This link is invalid. Open the exact link from your email or request a new one.</ErrorAlert>
+              <Link to="/forgot-password" className="btn btn-block">Request a new link</Link>
             </>
           ) : (
             <>
               <div className="field">
-                <label htmlFor="password">Mật khẩu mới</label>
+                <label htmlFor="password">New password</label>
                 <input id="password" type="password" autoComplete="new-password" required
                        value={password} onChange={(e) => setPassword(e.target.value)} />
-                <span className="muted small">Tối thiểu 8 ký tự, không dùng mật khẩu quá phổ biến.</span>
+                <span className="muted small">At least 8 characters. Avoid common passwords.</span>
               </div>
               <div className="field">
-                <label htmlFor="confirm">Nhập lại mật khẩu</label>
+                <label htmlFor="confirm">Confirm password</label>
                 <input id="confirm" type="password" autoComplete="new-password" required
                        value={confirm} onChange={(e) => setConfirm(e.target.value)} />
               </div>
               <ErrorAlert>{error}</ErrorAlert>
               <button className="btn btn-block" disabled={busy}>
                 {busy && <CircleNotch size={18} className="spin" />}
-                {busy ? "Đang lưu" : "Lưu mật khẩu mới"}
+                {busy ? "Saving" : "Save new password"}
               </button>
-              {error && <Link to="/forgot-password" className="small">Yêu cầu link mới</Link>}
+              {error && <Link to="/forgot-password" className="small">Request a new link</Link>}
             </>
           )}
         </form>

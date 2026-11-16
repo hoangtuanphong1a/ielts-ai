@@ -54,8 +54,8 @@ Mục tiêu: học viên luyện được đủ 4 kỹ năng; Listening / Readin
 | T1.1 | Profile + Learning Preferences (band mục tiêu, ngày thi, phút/ngày) | AUTH-07, AUTH-09 | M | T0.9 | Sửa được hồ sơ; onboarding hỏi mục tiêu sau đăng ký | [x] |
 | T1.2 | Đổi mật khẩu, quên / đặt lại mật khẩu (email console khi dev) | AUTH-05, AUTH-06 | M | T0.9 | Link reset hết hạn sau 1 giờ; có test | [x] |
 | T1.3 | Mô hình nội dung chung: Topic, Question (type + JSON schema đáp án), Attempt, Answer | — | L | T0.7 | 1 schema dùng chung cho mọi dạng câu L / R | [ ] |
-| T1.4 | Bộ render câu hỏi: MCQ, T/F/NG, Y/N/NG, Matching, Completion, Labelling | LIS-02, REA-02 | L | T1.3, T0.6 | Mỗi dạng có component + test chấm | [ ] |
-| T1.5 | Reading: thư viện passage, màn làm bài 2 cột, timer, chấm + quy đổi band | REA-01, REA-03, REA-06 | L | T1.4 | Nộp bài ra số câu đúng, band, giải thích | [ ] |
+| T1.4 | Bộ render câu hỏi: MCQ, T/F/NG, Y/N/NG, Matching, Completion, Labelling (xong 6 dạng trong `components/Reading.jsx`; còn Diagram Labelling) | LIS-02, REA-02 | L | T1.3, T0.6 | Mỗi dạng có component + test chấm | [ ] |
+| T1.5 | Reading: thư viện passage, màn làm bài 2 cột, timer, chấm + quy đổi band (app `reading`, 2 bài đọc gốc, "Show in passage", điểm yếu theo dạng câu vào `coach`) | REA-01, REA-03, REA-06 | L | T1.4 | Nộp bài ra số câu đúng, band, giải thích | [x] |
 | T1.6 | Listening: upload audio, player (tốc độ, tua), section 1–4, chấm, transcript sau nộp | LIS-01, LIS-03, LIS-05, LIS-06 | L | T1.4 | Nghe – làm – nộp – xem đáp án chạy trọn | [ ] |
 | T1.7 | Writing nâng cấp: timer, nháp lưu server, lọc ngân hàng đề | WRI-02, WRI-04, WRI-05 | M | T0.6 | Nháp khôi phục được trên máy khác | [ ] |
 | T1.8 | Speaking: thư viện chủ đề, Part 1/2/3, timer chuẩn bị, ghi âm, nghe lại, upload | SPE-01 → SPE-04 | L | T0.6, T0.7 | Ghi âm lưu server, nghe lại được | [ ] |
@@ -70,10 +70,10 @@ Mục tiêu: học viên luyện được đủ 4 kỹ năng; Listening / Readin
 
 | ID | Task | Tính năng | Size | Phụ thuộc | Tiêu chí xong | Trạng thái |
 |---|---|---|---|---|---|---|
-| T2.1 | Chấm Writing chạy nền (Celery) + trạng thái "đang chấm" | WRI-09 | S | T0.8 | Nộp bài trả về ngay; kết quả cập nhật khi xong | [ ] |
-| T2.2 | Pipeline spaCy: POS, phân tích từ vựng theo AWL / CEFR | WRI-11 | M | T2.1 | Lexical Resource dùng đặc trưng mới | [ ] |
-| T2.3 | Kiểm tra ngữ pháp / chính tả, đánh dấu lỗi trên bài | WRI-10 | M | T2.1 | Lỗi hiện đúng vị trí, có gợi ý sửa | [ ] |
-| T2.4 | Độ bám đề + mạch lạc bằng Sentence-BERT | WRI-13 | M | T2.2 | Task Response, Coherence dùng embedding | [ ] |
+| T2.1 | Chấm Writing chạy nền (Celery) + trạng thái "đang chấm" | WRI-09 | S | T0.8 | Nộp bài trả về ngay; kết quả cập nhật khi xong | [x] |
+| T2.2 | Pipeline spaCy: POS, phân tích từ vựng theo AWL / mức từ (tần suất wordfreq, thay CEFR) | WRI-11 | M | T2.1 | Lexical Resource dùng đặc trưng mới | [x] |
+| T2.3 | Kiểm tra ngữ pháp / chính tả, đánh dấu lỗi trên bài (LanguageTool + spaCy hoà hợp S-V) | WRI-10 | M | T2.1 | Lỗi hiện đúng vị trí, có gợi ý sửa | [x] |
+| T2.4 | Độ bám đề + mạch lạc bằng Sentence-BERT (MiniLM qua fastembed/ONNX: lạc đề, đoạn lạc đề, đoạn lặp ý) | WRI-13 | M | T2.2 | Task Response, Coherence dùng embedding | [x] |
 | T2.5 | LLM service: nhận xét, viết lại câu yếu; log `ai_requests`; rate limit | WRI-12, ADM-07 | M | T2.1 | Có giới hạn lượt / ngày; log chi phí | [ ] |
 | T2.6 | Speech-to-Text (Whisper) + phân tích nói: tốc độ, ngắt nghỉ, từ đệm | SPE-05, SPE-06 | L | T1.8 | Transcript + chỉ số fluency | [ ] |
 | T2.7 | Ước lượng band Speaking 4 tiêu chí | SPE-08 | M | T2.6 | Kết quả có band + nhận xét | [ ] |
@@ -87,9 +87,9 @@ Mục tiêu: học viên luyện được đủ 4 kỹ năng; Listening / Readin
 |---|---|---|---|---|---|---|
 | T3.1 | Thu thập dataset Writing có điểm; train + đánh giá Band Prediction (MAE, ±0.5) | WRI-09 | M | D6 | Model lưu version; báo cáo MAE | [ ] |
 | T3.2 | Placement Test thích ứng + Level Classification | AIL-01, AIL-02 | L | T1.5, T1.6, T2.1 | Ra band ước lượng 4 kỹ năng | [ ] |
-| T3.3 | Weakness Detection theo kỹ năng / dạng câu | DASH-06 | M | T1.10 | Top 3 điểm yếu có số liệu | [ ] |
-| T3.4 | Study Plan cá nhân hoá + cập nhật theo tuần | AIL-03, AIL-04 | L | T3.2, T3.3 | Lịch tuần sinh tự động | [ ] |
-| T3.5 | Recommendation engine (content-based trước) | AIL-05, DASH-07 | M | T3.3 | Đề xuất bài dựa trên điểm yếu | [ ] |
+| T3.3 | Weakness Detection theo kỹ năng / dạng câu (app `coach`: nhóm lỗi + đặc trưng NLP + tiêu chí) | DASH-06 | M | T1.10 | Top 3 điểm yếu có số liệu | [x] |
+| T3.4 | Study Plan cá nhân hoá + cập nhật theo tuần (đã có kế hoạch "hôm nay" theo số phút + bài tập sửa lỗi của chính mình; còn lịch tuần) | AIL-03, AIL-04 | L | T3.2, T3.3 | Lịch tuần sinh tự động | [ ] |
+| T3.5 | Recommendation engine (content-based trước: đề chưa làm, rồi đề band thấp nhất) | AIL-05, DASH-07 | M | T3.3 | Đề xuất bài dựa trên điểm yếu | [x] |
 | T3.6 | Quản lý version model, đánh giá định kỳ | ADM-06 | M | T3.1 | Đổi model không cần deploy lại | [ ] |
 
 ---
@@ -104,6 +104,7 @@ Mục tiêu: học viên luyện được đủ 4 kỹ năng; Listening / Readin
 | T4.4 | Dự đoán band tại ngày thi | ANA-09 | M | T3.1 | Có khoảng tin cậy | [ ] |
 | T4.5 | Mock Test đầy đủ: điều hướng, tự lưu, tự nộp, review | MOCK-01 → MOCK-05 | L | T1.5, T1.6, T1.7, T1.8 | Mô phỏng 1 bài thi trọn vẹn | [ ] |
 | T4.6 | Vocabulary Quiz + sổ từ cá nhân | VOC-05, VOC-06 | M | T1.9 | Thêm từ từ bài đọc vào sổ | [ ] |
+| T4.7 | Chế độ học & trò chơi từ danh sách từ: Learn, Listen & Type, Say It, Fill the Gap, Match (tham khảo LexisLift) | VOC-09 | L | T4.6, T1.9 | Mỗi chế độ cập nhật SM-2; chơi được trên mobile | [ ] |
 
 ---
 

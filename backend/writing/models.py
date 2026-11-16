@@ -15,6 +15,12 @@ class WritingPrompt(models.Model):
 
 
 class Submission(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        SCORING = "scoring", "Scoring"
+        DONE = "done", "Done"
+        FAILED = "failed", "Failed"
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name="submissions")
     prompt = models.ForeignKey(WritingPrompt, on_delete=models.CASCADE,
@@ -30,7 +36,11 @@ class Submission(models.Model):
 
     feedback = models.JSONField(default=list)
     features = models.JSONField(default=dict)
+    issues = models.JSONField(default=list, blank=True)  # T2.3: lỗi ngữ pháp/chính tả (LanguageTool)
     scorer = models.CharField(max_length=20, default="heuristic")
+    # T2.1: chấm ở nền. Bài cũ (đã chấm đồng bộ) mặc định là done.
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.DONE, db_index=True)
+    error = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -26,5 +26,16 @@ services:
     ports:
       - "${REDIS_PORT:-6380}:6379"
 
+  # T2.3: kiểm tra ngữ pháp / chính tả chạy local (bài viết không gửi ra ngoài)
+  languagetool:
+    image: erikvl87/languagetool:latest
+    container_name: ielts-ai-languagetool
+    restart: unless-stopped
+    environment:
+      Java_Xms: 256m
+      Java_Xmx: 1g
+    ports:
+      - "${LANGUAGETOOL_PORT:-8081}:8010"
+
 volumes:
   pgdata:
