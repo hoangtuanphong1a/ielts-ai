@@ -11,6 +11,7 @@ import Vocab from "./pages/Vocab.jsx";
 import ReadingList from "./pages/ReadingList.jsx";
 import ReadingTest from "./pages/ReadingTest.jsx";
 import ReadingResult from "./pages/ReadingResult.jsx";
+import StudyPlan from "./pages/StudyPlan.jsx";
 import Profile from "./pages/Profile.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/reading" element={<Protected><ReadingList /></Protected>} />
         <Route path="/reading/:id" element={<Protected><ReadingTest /></Protected>} />
         <Route path="/reading/attempts/:id" element={<Protected><ReadingResult /></Protected>} />
+        <Route path="/plan" element={<Protected><StudyPlan /></Protected>} />
         <Route path="/vocab" element={<Protected><Vocab /></Protected>} />
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
         <Route path="*" element={<Navigate to="/" replace />} />

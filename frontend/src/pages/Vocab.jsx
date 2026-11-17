@@ -86,7 +86,10 @@ export default function Vocab() {
         {flipped ? (
           <>
             <p>{word.definition}</p>
-            {word.example && <p className="muted example">{word.example}</p>}
+            {/* REA-04: câu học viên gặp từ này trong bài đọc, ưu tiên hơn ví dụ chung */}
+            {cards[index].context
+              ? <p className="muted example">{cards[index].context}<span className="small"> ({cards[index].source})</span></p>
+              : word.example && <p className="muted example">{word.example}</p>}
           </>
         ) : (
           <span className="muted small">Click or press Space to reveal</span>

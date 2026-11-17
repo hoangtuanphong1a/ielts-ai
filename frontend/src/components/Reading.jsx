@@ -1,6 +1,8 @@
 // Reading (T1.4): hiển thị bài đọc + bộ render cho từng dạng câu hỏi IELTS.
-import { useEffect, useRef, useState } from "react";
-import { Timer } from "@phosphor-icons/react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Highlighter, MagnifyingGlass, Timer } from "@phosphor-icons/react";
+import WordLookup, { cleanWord, sentenceAround } from "./WordLookup.jsx";
 
 export const KIND_LABEL = {
   mcq: "Multiple choice",
@@ -15,9 +17,94 @@ const JUDGE = { tfng: ["TRUE", "FALSE", "NOT GIVEN"], ynng: ["YES", "NO", "NOT G
 
 export const splitParagraphs = (body) => body.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
 
-// Bài đọc, đoạn gắn nhãn A, B, C...; `highlight` = đoạn trích cần tô (xem lại đáp án)
-export function PassageView({ title, body, highlight }) {
+// ---- Đánh dấu từ khoá (REA-04): lưu trong trình duyệt theo từng bài đọc ----
+const hlKey = (k) => `reading-highlights-${k}`;
+const loadHighlights = (k) => { try { return JSON.parse(localStorage.getItem(hlKey(k))) || []; } catch { return []; } };
+const saveHighlights = (k, v) => { try { localStorage.setItem(hlKey(k), JSON.stringify(v)); } catch { /* bỏ qua */ } };
+
+// Thêm vùng đánh dấu {p: đoạn, s, e}; gộp với vùng chồng lên trong cùng đoạn
+function addRange(list, r) {
+  const overlap = list.filter((x) => x.p === r.p && x.s <= r.e && r.s <= x.e);
+  const merged = overlap.reduce((m, x) => ({ p: m.p, s: Math.min(m.s, x.s), e: Math.max(m.e, x.e) }), r);
+  return [...list.filter((x) => !overlap.includes(x)), merged];
+}
+
+// Vị trí ký tự của (node, offset) tính từ đầu `container` (đúng cả khi chữ đã bị chia bởi <mark>)
+function offsetIn(container, node, offset) {
+  const range = document.createRange();
+  range.selectNodeContents(container);
+  range.setEnd(node, offset);
+  return range.toString().length;
+}
+
+// Tách đoạn văn theo mọi ranh giới đánh dấu + đoạn bằng chứng -> các đoạn chữ liền, không chồng nhau
+function segments(text, marks, evidence) {
+  const cuts = new Set([0, text.length]);
+  marks.forEach((m) => { cuts.add(m.s); cuts.add(m.e); });
+  if (evidence) { cuts.add(evidence.s); cuts.add(evidence.e); }
+  const points = [...cuts].filter((x) => x >= 0 && x <= text.length).sort((x, y) => x - y);
+  const out = [];
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const s = points[i], e = points[i + 1];
+    if (s === e) continue;
+    out.push({ s, e, text: text.slice(s, e), mark: marks.find((m) => m.s <= s && e <= m.e),
+               evidence: Boolean(evidence && evidence.s <= s && e <= evidence.e) });
+  }
+  return out;
+}
+
+// Bài đọc, đoạn gắn nhãn A, B, C...; `highlight` = đoạn trích bằng chứng cần tô (xem lại đáp án).
+// REA-04: nhấp đúp một từ để tra nghĩa; bôi đen một cụm để đánh dấu; bấm vào chỗ đã đánh dấu để bỏ.
+export function PassageView({ title, body, highlight, storageKey }) {
   const markRef = useRef(null);
+  const [query, setQuery] = useState(null);
+  const [typed, setTyped] = useState("");
+  const [marks, setMarks] = useState(() => (storageKey ? loadHighlights(storageKey) : []));
+  const [pending, setPending] = useState(null);  // cụm vừa bôi đen, chờ bấm "Highlight"
+  const close = useCallback(() => setQuery(null), []);
+  const paragraphs = splitParagraphs(body);
+
+  const updateMarks = (next) => {
+    setMarks(next);
+    if (storageKey) saveHighlights(storageKey, next);
+  };
+  const highlightRange = (r) => { updateMarks(addRange(marks, r)); setPending(null); window.getSelection()?.removeAllRanges(); };
+
+  const onSelect = (e) => {
+    // Sự kiện từ popover / nút Highlight (render qua portal) vẫn nổi bọt lên đây -> bỏ qua
+    if (e.target.closest?.(".lookup, .hl-toolbar")) return;
+    const sel = window.getSelection();
+    const raw = sel?.toString() || "";
+    if (!raw.trim() || !sel.rangeCount) { setPending(null); return; }
+    const range = sel.getRangeAt(0);
+    const para = range.startContainer.parentElement?.closest(".passage-para");
+    if (!para || para !== range.endContainer.parentElement?.closest(".passage-para")) return; // khác đoạn: bỏ qua
+    const container = para.querySelector(".para-text");
+    let s = offsetIn(container, range.startContainer, range.startOffset);
+    let end = offsetIn(container, range.endContainer, range.endOffset);
+    const text = container.textContent;
+    while (s < end && /\s/.test(text[s])) s += 1;
+    while (end > s && /\s/.test(text[end - 1])) end -= 1;
+    if (end <= s) return;
+    const spot = { p: Number(para.dataset.index), s, e: end };
+    const word = cleanWord(raw);
+    if (word) {
+      setPending(null);
+      setQuery({ word, context: sentenceAround(text, s), rect: range.getBoundingClientRect(), spot });
+    } else if (end - s <= 300) {
+      setPending({ ...spot, rect: range.getBoundingClientRect() });
+    }
+  };
+
+  const onType = (e) => {
+    e.preventDefault();
+    const word = cleanWord(typed);
+    if (!word) return;
+    // Lấy câu đầu tiên trong bài có từ này làm ngữ cảnh
+    const at = body.toLowerCase().search(new RegExp(`\\b${word.toLowerCase()}\\b`));
+    setQuery({ word, context: at === -1 ? "" : sentenceAround(body, at), rect: e.currentTarget.getBoundingClientRect() });
+  };
+
   useEffect(() => {
     const el = markRef.current;
     if (!highlight || !el) return;
@@ -30,26 +117,59 @@ export function PassageView({ title, body, highlight }) {
     }
   }, [highlight]);
 
+  let evidenceRefUsed = false;
   return (
-    <article className="passage" aria-label="Reading passage">
-      <h2 className="passage-title">{title}</h2>
-      {splitParagraphs(body).map((para, i) => {
+    <article className="passage" aria-label="Reading passage" onMouseUp={onSelect} onTouchEnd={onSelect}>
+      <div className="passage-top">
+        <h2 className="passage-title">{title}</h2>
+        <form className="lookup-form" onSubmit={onType} role="search">
+          <label htmlFor="lookup-input" className="sr-only">Look up a word</label>
+          <input id="lookup-input" placeholder="Look up a word" value={typed} autoComplete="off"
+                 onChange={(e) => setTyped(e.target.value)} />
+          <button type="submit" className="icon-btn" aria-label="Look up"><MagnifyingGlass size={18} /></button>
+        </form>
+      </div>
+      <p className="muted small passage-hint">
+        Double-click a word to look it up. Select a phrase to highlight it; click a highlight to remove it.
+        {marks.length > 0 && <> <button type="button" className="link-btn small" onClick={() => updateMarks([])}>Clear {marks.length} highlight{marks.length > 1 ? "s" : ""}</button></>}
+      </p>
+      {paragraphs.map((para, i) => {
         const at = highlight ? para.indexOf(highlight) : -1;
+        const evidence = at === -1 ? null : { s: at, e: at + highlight.length };
         return (
-          <p key={i} className="passage-para">
+          <p key={i} className="passage-para" data-index={i}>
             <span className="para-label" aria-label={`Paragraph ${LETTERS[i]}`}>{LETTERS[i]}</span>
             <span className="para-text">
-              {at === -1 ? para : (
-                <>
-                  {para.slice(0, at)}
-                  <mark ref={markRef} className="evidence">{para.slice(at, at + highlight.length)}</mark>
-                  {para.slice(at + highlight.length)}
-                </>
-              )}
+              {segments(para, marks.filter((m) => m.p === i), evidence).map((seg) => {
+                let node = seg.text;
+                if (seg.evidence) {
+                  const ref = evidenceRefUsed ? undefined : markRef;
+                  evidenceRefUsed = true;
+                  node = <mark ref={ref} className="evidence">{node}</mark>;
+                }
+                if (seg.mark) {
+                  node = (
+                    <mark className="user-hl" title="Click to remove this highlight"
+                          onClick={() => !window.getSelection()?.toString() && updateMarks(marks.filter((m) => m !== seg.mark))}>
+                      {node}
+                    </mark>
+                  );
+                }
+                return <Fragment key={seg.s}>{node}</Fragment>;
+              })}
             </span>
           </p>
         );
       })}
+      {pending && createPortal(
+        <button type="button" className="btn hl-toolbar" onClick={() => highlightRange(pending)}
+                style={{ top: Math.max(8, pending.rect.top - 48), left: Math.max(8, Math.min(pending.rect.left, window.innerWidth - 140)) }}>
+          <Highlighter size={18} /> Highlight
+        </button>, document.body)}
+      {query && (
+        <WordLookup query={query} source={`Reading: ${title}`} onClose={close}
+                    onHighlight={query.spot ? () => highlightRange(query.spot) : undefined} />
+      )}
     </article>
   );
 }

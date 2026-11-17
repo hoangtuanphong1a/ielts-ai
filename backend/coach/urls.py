@@ -1,5 +1,5 @@
 from django.urls import path
 
-from .views import today
+from .views import today, week
 
-urlpatterns = [path("today/", today)]
+urlpatterns = [path("today/", today), path("week/", week)]

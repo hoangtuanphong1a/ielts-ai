@@ -88,7 +88,7 @@ Mục tiêu: học viên luyện được đủ 4 kỹ năng; Listening / Readin
 | T3.1 | Thu thập dataset Writing có điểm; train + đánh giá Band Prediction (MAE, ±0.5) | WRI-09 | M | D6 | Model lưu version; báo cáo MAE | [ ] |
 | T3.2 | Placement Test thích ứng + Level Classification | AIL-01, AIL-02 | L | T1.5, T1.6, T2.1 | Ra band ước lượng 4 kỹ năng | [ ] |
 | T3.3 | Weakness Detection theo kỹ năng / dạng câu (app `coach`: nhóm lỗi + đặc trưng NLP + tiêu chí) | DASH-06 | M | T1.10 | Top 3 điểm yếu có số liệu | [x] |
-| T3.4 | Study Plan cá nhân hoá + cập nhật theo tuần (đã có kế hoạch "hôm nay" theo số phút + bài tập sửa lỗi của chính mình; còn lịch tuần) | AIL-03, AIL-04 | L | T3.2, T3.3 | Lịch tuần sinh tự động | [ ] |
+| T3.4 | Study Plan cá nhân hoá + cập nhật theo tuần (kế hoạch "hôm nay" + trang `/plan`: ngày đã qua hiện việc đã làm thật, ngày tới xếp theo quy tắc, xoay vòng điểm yếu) | AIL-03, AIL-04 | L | T3.2, T3.3 | Lịch tuần sinh tự động | [x] |
 | T3.5 | Recommendation engine (content-based trước: đề chưa làm, rồi đề band thấp nhất) | AIL-05, DASH-07 | M | T3.3 | Đề xuất bài dựa trên điểm yếu | [x] |
 | T3.6 | Quản lý version model, đánh giá định kỳ | ADM-06 | M | T3.1 | Đổi model không cần deploy lại | [ ] |
 

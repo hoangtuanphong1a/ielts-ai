@@ -76,7 +76,7 @@ export default function ReadingTest() {
 
       <div className="reading-split" data-tab={tab}>
         <div className="card reading-pane pane-passage">
-          <PassageView title={passage.title} body={passage.body} />
+          <PassageView title={passage.title} body={passage.body} storageKey={passage.id} />
         </div>
         <div className="card reading-pane pane-questions">
           {passage.groups.map((g) => <QuestionGroupView key={g.id} group={g} answers={answers} onChange={update} />)}

@@ -71,6 +71,7 @@ export function TodayPlan({ plan }) {
           );
         })}
       </ul>
+      <Link to="/plan" className="small today-week-link">See your week</Link>
     </>
   );
 }

@@ -12,3 +12,4 @@ backend/ml/artifacts/nltk_data/
 # Bản dựng lại trang tham khảo (engine chép từ prompt của người khác): chỉ giữ local, chỉ commit bài phân tích
 docs/reference/mina-portrait/*
 !docs/reference/mina-portrait/ANALYSIS.md
+docs/lunaria/processed/

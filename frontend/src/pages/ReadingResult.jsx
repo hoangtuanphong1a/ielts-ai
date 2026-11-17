@@ -65,7 +65,7 @@ export default function ReadingResult() {
 
       <div className="reading-split" data-tab={tab}>
         <div className="card reading-pane pane-passage">
-          <PassageView title={passage.title} body={passage.body} highlight={highlight} />
+          <PassageView title={passage.title} body={passage.body} highlight={highlight} storageKey={passage.id} />
         </div>
         <div className="card reading-pane pane-questions">
           <h2 style={{ marginBottom: "1rem" }}>Answers and explanations</h2>

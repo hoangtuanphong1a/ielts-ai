@@ -14,7 +14,7 @@ Video **không phát trực tiếp trên web**. Chỉ dùng để lấy khung h�
 ## Phần chung (dán ở đầu mọi prompt)
 
 ```
-Single continuous shot. The camera is locked on a tripod: no camera movement, no zoom, no pan, no cut, no scene change.
+Single continuous shot. The camera does not move: no camera movement, no zoom, no pan, no cut, no scene change.
 Keep the exact same scene as the input image: same background, same lighting, same desk, monitor, cat plush, cup, books and plant, all perfectly still and in the same position.
 Only the girl moves. She keeps the same outfit, white headphones, hair, elf ears and makeup.
 Movements are slow and calm. She holds each pose still for about one second before the next movement.
@@ -96,3 +96,25 @@ Nếu đặt ảnh đầu và ảnh cuối giống nhau mà cô ấy gần như 
 3. Căn khung nếu bị trôi, cắt vùng người (nửa phải), xuất webp.
 4. Tách nền một lần từ `rest` để làm vùng bấm.
 5. Gắn vào engine và nối với sự kiện của IELTS AI.
+
+
+## Kết quả lượt 1 (2026-11-17, 8 video Lumina/Seedance trong `docs/lunaria/demo/`)
+
+Xử lý bằng `tools/lunaria_clips.py` -> `docs/lunaria/processed/` (không đưa lên git, chạy lại là có).
+
+| Video | Act | Kết quả |
+|---|---|---|
+| 1 | blink-gaze | Dùng ảnh gốc `demo.png` (khác bộ 2-8); nửa sau tự mọc thêm màn hình thứ hai. **Làm lại** từ ảnh gốc mới |
+| 2 | turn-talk | Dùng được |
+| 3 | point | Dùng được |
+| 4 | think-proud | Giây 7.25 tự mọc **chân máy quay** (model hiểu chữ "tripod" theo nghĩa đen), script cắt còn 6.75s. **Nên làm lại** |
+| 5 | worried-encourage | Dùng được (biểu cảm nhẹ) |
+| 6 | surprised | Dùng được |
+| 7 | typing | Dùng được |
+| 8 | headphones | Dùng được, khung ổn nhất |
+
+Bài học cho lượt sau:
+- **Mọi clip phải dùng cùng một ảnh gốc** (ảnh gốc hiện tại = khung đầu của video 2, đã lưu ở `processed/rest.webp`). Dùng chính file đó làm first frame và last frame.
+- **Không viết "tripod"** trong prompt. Phần chung ở trên đã sửa thành "The camera does not move".
+- Nền bị trôi màu (xanh sang trắng) giữa các clip là bình thường; script hiệu chỉnh màu về khung tham chiếu (độ lệch còn <= 5.3/255).
+- Mỗi act sau khi nén ~0.9MB/10s, nên giữ dạng video ngắn thay vì xuất từng ảnh như Mina (840 ảnh ~50MB).

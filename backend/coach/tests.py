@@ -151,3 +151,49 @@ class ReadingCoachTests(CoachBase):
         plan = build_today(self.user, focus, has_essays=True, days_to_exam=None)
         self.assertEqual(plan["items"][0]["kind"], "reading")
         self.assertEqual(plan["items"][0]["passage"]["title"], "Fresh passage")
+
+
+class WeekTests(CoachBase):
+    def setUp(self):
+        super().setUp()
+        WritingPrompt.objects.create(title="Third prompt", prompt_text="?")
+        WritingPrompt.objects.create(title="Fourth prompt", prompt_text="?")
+
+    def test_week_has_seven_days_starting_monday(self):
+        from .week import build_week
+        self.submit()
+        week = build_week(self.user, [], has_essays=True, days_to_exam=None)
+        self.assertEqual(len(week["days"]), 7)
+        self.assertEqual(week["days"][0]["weekday"], "Mon")
+        self.assertEqual(sum(d["is_today"] for d in week["days"]), 1)
+
+    def test_past_days_show_what_was_done(self):
+        from .week import build_week
+        sub = self.submit()
+        monday = timezone.localdate() - timedelta(days=timezone.localdate().weekday())
+        if monday == timezone.localdate():
+            self.skipTest("today is Monday: no past day this week")
+        Submission.objects.filter(pk=sub.pk).update(created_at=timezone.make_aware(
+            timezone.datetime.combine(monday, timezone.datetime.min.time().replace(hour=12))))
+        week = build_week(self.user, [], has_essays=True, days_to_exam=None)
+        self.assertEqual(week["days"][0]["done"]["essays"], 1)
+        self.assertEqual(week["days"][0]["items"], [])
+
+    def test_future_days_fit_budget_and_do_not_repeat_prompts(self):
+        from .week import build_week
+        self.submit()
+        weak = [{"title": "Subject-verb agreement", "tip": "t", "criterion": "grammar", "examples": []}]
+        week = build_week(self.user, weak, has_essays=True, days_to_exam=None)
+        future = [d for d in week["days"] if not d["is_past"] and not d["is_today"]]
+        for day in future:
+            self.assertLessEqual(day["minutes"], 45)
+        ids = [i["prompt"]["id"] for d in future for i in d["items"] if i["kind"] == "essay"]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_week_endpoint(self):
+        self.submit()
+        client = APIClient()
+        client.force_authenticate(self.user)
+        data = client.get("/api/coach/week/").json()
+        self.assertEqual(len(data["days"]), 7)
+        self.assertIn("weaknesses", data)

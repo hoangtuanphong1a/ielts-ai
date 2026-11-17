@@ -126,7 +126,7 @@ AI / ML: phân tích dạng câu hỏi hay sai; đề xuất bài nghe theo trì
 | REA-01 | Passage Library | Thư viện bài đọc Academic / General Training, lọc theo chủ đề và độ khó | P0 | Chưa |
 | REA-02 | Question Types | Multiple Choice, True/False/Not Given, Yes/No/Not Given, Matching Headings / Information / Features, Sentence / Summary Completion, Diagram Labelling | P0 | Chưa |
 | REA-03 | Reading Timer | Đếm giờ theo bài / theo test | P0 | Chưa |
-| REA-04 | Highlight & Lookup | Đánh dấu từ khoá, tra từ ngay trong bài đọc | P1 | Chưa |
+| REA-04 | Highlight & Lookup | Đánh dấu từ khoá, tra từ ngay trong bài đọc | P1 | Xong: tra từ (WordNet offline, nghĩa xếp theo ngữ cảnh) + lưu thẻ có câu ngữ cảnh; đánh dấu cụm từ (lưu theo bài đọc trong trình duyệt) |
 | REA-05 | Full Reading Test | Bài thi đủ 3 passage, 60 phút | P1 | Chưa |
 | REA-06 | Auto Grading & Explanation | Chấm tự động, giải thích đáp án, chỉ vị trí trong passage | P0 | Chưa |
 
